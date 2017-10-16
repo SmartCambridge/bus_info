@@ -39,9 +39,14 @@ Service entity itself containing a single Line entity, but then stands
 alone containing copies of all other referenced entities. Because files
 contain a single Service they also contain a single Operator.
 
-In addition, the files impliment a 1:1 relationship between
-JourneyPatterns and JourneyPatternSections, and Routes and
+The files implement a 1:1 relationship between
+JourneyPatterns and JourneyPatternSections, and between Routes and
 RouteSections. 
+
+Very few VehicleJourneys include VehicleJourneyTimingLinks, implying
+that the VehicleJourney keeps to the JourneyPatternTimingLinks of the
+underlying JourneyPattern. Where VehicleJourneyTimingLinks apepar, they
+only contain empty To and From entities.
 
 SequenceNo
 ----------
