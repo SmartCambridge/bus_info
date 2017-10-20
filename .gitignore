@@ -8,4 +8,5 @@ bus-data-summary.pdf
 xsd-validator
 xsdvi.log
 xsdvi
+diags
 .DS_store
