@@ -8,7 +8,6 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 from graphviz import Digraph
-import html
 
 ns = {'n': 'http://www.transxchange.org.uk/'}
 
@@ -16,22 +15,14 @@ ns = {'n': 'http://www.transxchange.org.uk/'}
 def display_stop(tree,ref):
     """ Given a StopPointRef of an AnnotatedStopPoint, return a description """
     stop = tree.find("n:StopPoints/n:AnnotatedStopPointRef[n:StopPointRef='%s']" % ref, ns)
-    try:
-        ref = html.escape(ref)
-        indicator = html.escape(stop.find('n:Indicator', ns).text)
-        cn = html.escape(stop.find('n:CommonName', ns).text)
-        locality = html.escape(stop.find('n:LocalityName', ns).text)
-        result = "<b>%s</b>" % ref
-        if indicator or cn:
-            result = "%s<br/>" % result
-            if indicator:
-                result = "%s%s" % (result, indicator)
-            if cn:
-                result = "%s %s" % (result, cn)
-        result = "< %s<br/>%s >" % (result,locality)
-        return result
-    except AttributeError:
-        return ref
+    result = r'%s\n' % ref
+    if stop.find('n:Indicator', ns) is not None:
+        result = "%s%s" % (result, stop.find('n:Indicator', ns).text)
+    if stop.find('n:CommonName', ns) is not None:
+        result = "%s %s" % (result, stop.find('n:CommonName', ns).text)
+    if stop.find('n:LocalityName', ns) is not None:
+        result = "%s, %s" % (result, stop.find('n:LocalityName', ns).text)
+    return result
 
 
 def process(filename):
@@ -43,21 +34,19 @@ def process(filename):
 
     graph_attrs = {'fontname': 'Helvetica'}
     node_attrs = {'shape': 'box'}
-    edge_attrs = {}
-    colors = ['/set19/1', '/set19/2', '/set19/3', '/set19/4', '/set19/5',
-              '/set19/6', '/set19/7', '/set19/8', '/set19/9']
+    edge_attrs = {'fontsize': '9'}
+    colors = ['/dark28/1', '/dark28/2', '/dark28/3', '/dark28/4', 
+              '/dark28/5', '/dark28/6', '/dark28/7', '/dark28/8']
 
     graphs = {}
-    route_ctr = 0
+    serial_counter = {}
+    route_serial = {}
 
     # For each route...
     for route in tree.findall('n:Routes/n:Route', ns):
+      route_id = route.get('id')
       private_code = route.find('n:PrivateCode', ns).text
       route_section_ref = route.find('n:RouteSectionRef', ns).text
-
-      # Choose a colour for this route
-      route_color = colors[route_ctr % len(colors)]
-      route_ctr += 1;
 
       # ...for each RouteLink in that RouteSection for that Route
       route_section = tree.find("n:RouteSections/n:RouteSection[@id='%s']" % route_section_ref, ns)
@@ -76,10 +65,24 @@ def process(filename):
           graphs[direction].attr(label='\\n\\n%s %s' % (basename,direction))
           graphs[direction].attr(fontsize='20')
 
+        # Form a sequence number for this route in this direction
+        if direction not in route_serial:
+          route_serial[direction] = {}
+        if route_id not in route_serial[direction]:
+          if direction not in serial_counter:
+            serial_counter[direction] = 0
+          else:
+            serial_counter[direction] += 1
+          route_serial[direction][route_id] = serial_counter[direction]
+        route_no = route_serial[direction][route_id]   
+
+        route_color = colors[route_no % len(colors)]
+
         graphs[direction].node(from_stop,display_stop(tree,from_stop))
         graphs[direction].node(to_stop,display_stop(tree,to_stop))
-        graphs[direction].edge(from_stop, to_stop, color=route_color)
+        graphs[direction].edge(from_stop, to_stop, color=route_color, label=str(route_no + 1))
 
+    # Draw each graph (i.e. for each identified direction)
     for direction in graphs:
       print(graphs[direction].render('%s-%s' % (basename,direction), cleanup=True))
 
