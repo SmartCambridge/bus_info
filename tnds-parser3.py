@@ -50,6 +50,13 @@ def process(filename):
     graphs = {}
     route_ctr = 0
 
+    # Counting on there being only one Service, Line and Operator
+    # in each file...
+
+    service_description = tree.find('n:Services/n:Service/n:Description', ns).text
+    operator_name = tree.find('n:Operators/n:Operator/n:OperatorShortName', ns).text
+    line_name = tree.find('n:Services/n:Service/n:Lines/n:Line/n:LineName', ns).text
+
     # For each route...
     for route in tree.findall('n:Routes/n:Route', ns):
       private_code = route.find('n:PrivateCode', ns).text
@@ -73,12 +80,12 @@ def process(filename):
           graphs[direction] = Digraph(graph_attr=graph_attrs,
             node_attr=node_attrs,
             edge_attr=edge_attrs)
-          graphs[direction].attr(label='\\n\\n%s %s' % (basename,direction))
+          graphs[direction].attr(label=r'\n%s %s %s\n%s\n%s' % (operator_name, line_name, direction, service_description, basename))
           graphs[direction].attr(fontsize='20')
 
         graphs[direction].node(from_stop,display_stop(tree,from_stop))
         graphs[direction].node(to_stop,display_stop(tree,to_stop))
-        graphs[direction].edge(from_stop, to_stop, color=route_color)
+        graphs[direction].edge(from_stop, to_stop, color=route_color, label=str(route_ctr))
 
     for direction in graphs:
       print(graphs[direction].render('%s-%s' % (basename,direction), cleanup=True))
