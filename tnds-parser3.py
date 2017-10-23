@@ -57,6 +57,8 @@ def process(filename):
 
       # ...for each RouteLink in that RouteSection for that Route
       route_section = tree.find("n:RouteSections/n:RouteSection[@id='%s']" % route_section_ref, ns)
+      first_link_id = route_section.find("n:RouteLink[1]" , ns).get('id')
+      last_link_id = route_section.find("n:RouteLink[last()]" , ns).get('id')
       for link in route_section.findall('n:RouteLink', ns):
 
         from_stop = link.find('n:From/n:StopPointRef', ns).text
@@ -85,9 +87,16 @@ def process(filename):
 
         route_color = colors[route_no % len(colors)]
 
+        # Label first and last links differently
+        label = str(route_no + 1)
+        if link.get('id') == first_link_id:
+          label = "%d (first)" % (route_no + 1)
+        elif link.get('id') == last_link_id:
+          label = "%d (last)" % (route_no + 1)
+
         graphs[direction].node(from_stop,display_stop(tree,from_stop))
         graphs[direction].node(to_stop,display_stop(tree,to_stop))
-        graphs[direction].edge(from_stop, to_stop, color=route_color, label=str(route_no + 1))
+        graphs[direction].edge(from_stop, to_stop, color=route_color, label=label)
 
     # Draw each graph (i.e. for each identified direction)
     for direction in graphs:
