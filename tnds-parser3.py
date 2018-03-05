@@ -70,7 +70,8 @@ def process(filename):
         if direction not in graphs:
           graphs[direction] = Digraph(graph_attr=graph_attrs,
             node_attr=node_attrs,
-            edge_attr=edge_attrs)
+            edge_attr=edge_attrs,
+            name='%s %s %s' % (line_name, direction, service_description))
           graphs[direction].attr(label=r'\n%s %s %s\n%s\n%s' % (operator_name, line_name, direction, service_description, basename))
           graphs[direction].attr(fontsize='20')
 
