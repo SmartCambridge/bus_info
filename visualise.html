@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;
+                                             charset=utf-8">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+  integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+  crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+  integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+  crossorigin=""></script>
+
+    <script type="text/javascript" src="regions.js"></script>
+
+    <script type="text/javascript">
+
+function init(){
+
+  var map = new L.Map('map');
+
+  var uoc = new
+    //L.TileLayer('http://map.cam.ac.uk/tiles/{z}/{x}/{y}.png',
+    L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>',
+      maxZoom: 19
+    }
+  );
+
+  var colors = {'EA': 'red', 'EM': 'blue', 'L': 'green', 'NSCD': 'aqua',
+  'NE': 'fuchsia', 'NW': 'olive', 'S': 'purple', 'SE': 'yellow',
+  'SW': 'black', 'W': 'lime', 'WM': 'maroon', 'Y': 'teal'}
+
+  var cambridge = new L.LatLng(52.20038, 0.1197);
+  map.setView(cambridge, 9).addLayer(uoc);
+
+  console.log('About to draw points');
+
+  Object.keys(regions).forEach(function(region, index) {
+
+    console.log("Doing region ", region);
+
+    color = colors[region]
+    regions[region].forEach(function(point) {
+        L.circleMarker(point, {radius: 1, fillOpacity: 1, color: color}).addTo(map)
+    })
+
+  })
+
+  L.rectangle([[52.0085564,-0.755235], [52.8346291,0.63038]],{color: "red", weight: 1}).addTo(map);
+
+
+}
+
+    </script>
+    <title>TNDS Regions</title>
+  </head>
+
+  <body onload="init()">
+
+    <h1>TNDS Regions</h1>
+
+    <p>Start and end stop for every route in the national
+      <a href="http://www.travelinedata.org.uk/traveline-open-data/traveline-national-dataset/">TNDS
+      bus stop data</a>, colour coded by TNDS region.</p>
+
+    <p><b><span style='color: red'>EA: red</span>,
+      <span style='color: blue'>EM: blue</span>,
+      <span style='color: green'>L: green</span>,
+      <span style='color: aqua'>NSCD: aqua</span>,
+      <span style='color: fuchsia'>NE: fuchsia</span>,
+      <span style='color: olive'>NW: olive</span>,
+      <span style='color: purple'>S: purple</span>,
+      <span style='color: yellow'>SE: yellow</span>,
+      <span style='color: black'>SW: black</span>,
+      <span style='color: lime'>W: lime</span>,
+      <span style='color: maroon'>WM: maroon</span>,
+      <span style='color: teal'>Y: teal</span></b></p>
+
+   <P>The pink square represents the area from which the Adaptive Cities 
+   Platform is receiving SIRI-VM monitoring data.</p>
+
+    <div id="map" style="height: 1200px; border: 1px solid black;"></div>
+
+  </body>
+
+</html>
+
+
+red blue green aqua fuchsia olive purple yellow black lime maroon teal
