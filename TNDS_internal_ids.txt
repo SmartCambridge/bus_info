@@ -1,0 +1,17 @@
+               File name:  ea_20-A-B-y08-1.xml
+
+                 Service:     20-A-B-y08-1 [1]
+                    Line:     20-A-B-y08-1
+
+                   Route:   R_20-A-B-y08-1-H-1 [1]
+            RouteSection:  RS_20-A-B-y08-1-H-1
+               RouteLink:  RL_20-A-B-y08-1-H-1-1
+
+          JourneyPattern:  JP_20-A-B-y08-1-21-H-16
+   JourneyPatternSection: JPS_20-A-B-y08-1-21-16-H
+JourneyPatternTimingLink: JPL_20-A-B-y08-1-21-H-16-2
+
+          VehicleJourney:  VJ_20-A-B-y08-1-380-UK [2]
+
+[1] identical matching 'private' code
+[2] related matching 'private' code (ea-20-A-B-y08-1-380-UK)
