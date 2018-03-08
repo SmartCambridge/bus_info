@@ -8,6 +8,7 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 from graphviz import Digraph
+from datetime import datetime
 
 ns = {'n': 'http://www.transxchange.org.uk/'}
 
@@ -25,7 +26,7 @@ def display_stop(tree,ref):
     return result
 
 
-def process(filename):
+def process(filename, index):
     """ Process one TNDS data file """
 
     tree = ET.parse(filename).getroot()
@@ -33,8 +34,8 @@ def process(filename):
     basename = os.path.splitext(os.path.basename(filename))[0]
 
     graph_attrs = {'fontname': 'Helvetica'}
-    node_attrs = {'shape': 'box'}
-    edge_attrs = {'fontsize': '9'}
+    node_attrs = {'shape': 'box', 'fontname': 'Helvetica'}
+    edge_attrs = {'fontsize': '9', 'fontname': 'Helvetica'}
     colors = ['/dark28/1', '/dark28/2', '/dark28/3', '/dark28/4',
               '/dark28/5', '/dark28/6', '/dark28/7', '/dark28/8']
 
@@ -48,6 +49,9 @@ def process(filename):
     service_description = tree.find('n:Services/n:Service/n:Description', ns).text
     operator_name = tree.find('n:Operators/n:Operator/n:OperatorShortName', ns).text
     line_name = tree.find('n:Services/n:Service/n:Lines/n:Line/n:LineName', ns).text
+
+    print("<h2>%s - %s (%s)</h2>" % (line_name, service_description, basename), file=index)
+    print("<ul>", file=index)
 
     # For each route...
     for route in tree.findall('n:Routes/n:Route', ns):
@@ -88,23 +92,69 @@ def process(filename):
 
         route_color = colors[route_no % len(colors)]
 
-        # Label first and last links differently
+        # Label first and last nodes and links differently
         label = str(route_no + 1)
-        if link.get('id') == first_link_id:
-          label = "%d (first)" % (route_no + 1)
-        elif link.get('id') == last_link_id:
-          label = "%d (last)" % (route_no + 1)
 
-        graphs[direction].node(from_stop,display_stop(tree,from_stop))
-        graphs[direction].node(to_stop,display_stop(tree,to_stop))
+        if link.get('id') == first_link_id:
+          label = '<<font face="helvetica-bold">%d (first)</font>>' % (route_no + 1)
+        elif link.get('id') == last_link_id:
+          label = '<<font face="helvetica-bold">%d (last)</font>>' % (route_no + 1)
+
+        if link.get('id') == first_link_id:
+          graphs[direction].node(from_stop, display_stop(tree,from_stop), penwidth="4")
+        else:
+          graphs[direction].node(from_stop, display_stop(tree,from_stop))
+        if link.get('id') == last_link_id:
+          graphs[direction].node(to_stop, display_stop(tree,to_stop), penwidth="4")
+        else:
+          graphs[direction].node(to_stop, display_stop(tree,to_stop))
         graphs[direction].edge(from_stop, to_stop, color=route_color, label=label)
 
     # Draw each graph (i.e. for each identified direction)
-    for direction in graphs:
+    for direction in sorted(graphs):
+      #text = '<<table>'
+      #for id, counter in route_serial[direction].items():
+      #  text = '%s<tr><td>%s</td><td>%s</td></tr>' % (text, counter, id)
+      #text = text + '</table>>'
+      #graphs[direction].node('key', text)
       print(graphs[direction].render('%s-%s' % (basename,direction), cleanup=True))
+      print("<li><a href=%s-%s.pdf>%s</a></li>" % (basename, direction, direction), file=index)
 
+    print("</ul>", file=index)
 
 if __name__ == '__main__':
+
+    index = open('index.html', 'w');
+
+    print('''
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Bus line diagrams</title>
+    <meta name = "viewport" content = "width = 600" />
+    <link rel="stylesheet" href="../../jw35-default.css"
+          type="text/css" media="all" />
+  </head>
+
+  <body>
+
+    <h1>Bus Line diagrams</h1>
+
+    <p>Automatically-generated diagrams of East Anglia bus lines derived
+    from the <a href="http://www.travelinedata.org.uk/">TNDS data made
+    available by TravelLine</a>.</p>
+''', file=index)
+
+    print("<p>Last updated %s</p>" % (datetime.now()), file=index)
+
     for filename in sys.argv[1:]:
         print('Processing %s' % filename, file=sys.stderr)
-        process(filename)
+        process(filename, index)
+
+    print('''
+  </body>
+
+</html>
+''', file=index)
