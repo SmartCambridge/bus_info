@@ -9,4 +9,5 @@ xsd-validator
 xsdvi.log
 xsdvi
 diags
+diagrams/
 .DS_store
