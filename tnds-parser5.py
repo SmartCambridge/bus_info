@@ -87,8 +87,8 @@ def process(filename, index):
           "n:RouteSections/n:RouteSection[@id='%s']" % route_section_ref, ns
         )
 
-        first_link_id = route_section.find("n:RouteLink[1]", ns).get('id')
-        last_link_id = route_section.find("n:RouteLink[last()]", ns).get('id')
+        first_link_stop = route_section.find("n:RouteLink[1]/n:From/n:StopPointRef", ns).text
+        last_link_stop = route_section.find("n:RouteLink[last()]/n:To/n:StopPointRef", ns).text
 
         first = None
 
@@ -133,12 +133,16 @@ def process(filename, index):
 
             # Label first and last links differently
             label = str(route_no + 1)
-            if link.get('id') == first_link_id:
+            if first == first_link_stop and to_stop == last_link_stop:
+                label = ('<<font face="helvetica-bold">%d (only)</font>>' %
+                         (route_no + 1))
+            elif first == first_link_stop:
                 label = ('<<font face="helvetica-bold">%d (first)</font>>' %
                          (route_no + 1))
-            elif link.get('id') == last_link_id:
+            elif to_stop == last_link_stop:
                 label = ('<<font face="helvetica-bold">%d (last)</font>>' %
                          (route_no + 1))
+
             graphs[direction].node(first,
                                    display_stop(tree, first))
             graphs[direction].node(to_stop,
