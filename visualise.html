@@ -12,7 +12,13 @@
   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
   crossorigin=""></script>
 
+    <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+
+    <!-- Evil hack - loads extracted stop information into 'regions' -->
     <script type="text/javascript" src="regions.js"></script>
+
+    <!-- Evil hack - loads extracted county boundaries into 'boundaries' -->
+    <script type="text/javascript" src="boundaries.js"></script>
 
     <script type="text/javascript">
 
@@ -51,6 +57,7 @@ function init(){
 
   L.rectangle([[52.0085564,-0.755235], [52.8346291,0.63038]],{color: "red", weight: 1}).addTo(map);
 
+  L.geoJSON(boundaries).addTo(map)
 
 }
 
@@ -81,6 +88,8 @@ function init(){
 
    <P>The pink square represents the area from which the Adaptive Cities 
    Platform is receiving SIRI-VM monitoring data.</p>
+
+   <p>Cambridgeshire and surrounding counties in blue.</p>p>
 
     <div id="map" style="height: 1200px; border: 1px solid black;"></div>
 
