@@ -6,8 +6,8 @@
 
 set -e
 
-# From https://data.gov.uk/dataset/11302ddc-65bc-4a8f-96a9-af5c456e442c/counties-and-unitary-authorities-december-2016-full-clipped-boundaries-in-england-and-wales
-src='http://geoportal1-ons.opendata.arcgis.com/datasets/687f346f5023410ba86615655ff33ca9_3.geojson'
+# From https://data.gov.uk/dataset/cd97a8df-e2fe-4f3d-a60f-1f871a317d31/counties-and-unitary-authorities-december-2016-full-extent-boundaries-in-england-and-wales
+src='http://geoportal1-ons.opendata.arcgis.com/datasets/687f346f5023410ba86615655ff33ca9_1.geojson'
 
 script='{ features:
     [ .features[] |
